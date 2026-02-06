@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing git tag to release (for example: v1.0.0)"
+        required: true
+        type: string
+      prerelease:
+        description: Mark as pre-release
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve release tag
+        id: meta
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TAG="${{ inputs.tag }}"
+            PRERELEASE="${{ inputs.prerelease }}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+            PRERELEASE="false"
+          fi
+
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Tag must start with v and use semantic versioning. Got: $TAG" >&2
+            exit 1
+          fi
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.meta.outputs.tag }}
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Validate tag and extension version
+        run: |
+          XML_VERSION="$(php -r '$xml = simplexml_load_file("info.xml"); if (!$xml) { fwrite(STDERR, "Invalid info.xml\n"); exit(1);} echo trim((string) $xml->version);')"
+          if [[ "${XML_VERSION}" != "${{ steps.meta.outputs.version }}" ]]; then
+            echo "Tag version (${{ steps.meta.outputs.version }}) does not match info.xml version (${XML_VERSION})." >&2
+            exit 1
+          fi
+
+      - name: Lint PHP
+        run: find . -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Build release package
+        id: package
+        run: |
+          PACKAGE_PATH="$(bash build/release-package.sh "${{ steps.meta.outputs.version }}")"
+          echo "package=$PACKAGE_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ steps.meta.outputs.tag }}
+          path: dist/*.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          generate_release_notes: true
+          prerelease: ${{ steps.meta.outputs.prerelease == 'true' }}
+          files: |
+            dist/*.zip

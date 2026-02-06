@@ -1,0 +1,54 @@
+name: Bug report
+description: Report a defect in the extension.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List exact steps.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: civicrm
+    attributes:
+      label: CiviCRM version
+      placeholder: 6.7.2
+    validations:
+      required: true
+
+  - type: input
+    id: civirules
+    attributes:
+      label: CiviRules version
+      placeholder: 3.13.0
+    validations:
+      required: true
+
+  - type: input
+    id: php
+    attributes:
+      label: PHP version
+      placeholder: 8.3.x
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / errors
+      render: shell

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<extension key="org.civicrm.civirules.fellowshipaccepted" type="module">
+  <file>civirulesfellowshipaccepted</file>
+  <name>CiviRules Fellowship Accepted Condition</name>
+  <description>Adds a CiviRules condition for multi-record custom data: Fellowship accepted changed to Yes.</description>
+  <license>AGPL-3.0</license>
+  <urls>
+    <url desc="Documentation">https://docs.civicrm.org/civirules/en/latest/</url>
+  </urls>
+  <maintainer>
+    <author>Codex</author>
+    <email>noreply@example.org</email>
+  </maintainer>
+  <releaseDate>2026-02-06</releaseDate>
+  <version>1.0.0</version>
+  <develStage>stable</develStage>
+  <compatibility>
+    <ver>6.7</ver>
+  </compatibility>
+  <classloader>
+    <psr0 prefix="CRM_" path="."/>
+  </classloader>
+  <upgrader>CRM_Civirulesfellowshipaccepted_Upgrader</upgrader>
+  <civix>
+    <namespace>CRM/Civirulesfellowshipaccepted</namespace>
+    <format>23.02.1</format>
+  </civix>
+</extension>

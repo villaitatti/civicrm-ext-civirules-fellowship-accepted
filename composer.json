@@ -1,0 +1,11 @@
+{
+  "name": "civicrm/civirules-fellowship-accepted",
+  "description": "CiviRules condition for multi-record fellowship acceptance custom data",
+  "type": "civicrm-extension",
+  "license": "AGPL-3.0",
+  "autoload": {
+    "psr-0": {
+      "CRM_": "."
+    }
+  }
+}

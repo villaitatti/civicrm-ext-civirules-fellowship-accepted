@@ -1,0 +1,8 @@
+[
+  {
+    "name": "fellowship_accepted_changed_to_yes",
+    "label": "Fellowship accepted changed to Yes",
+    "class_name": "CRM_Civirulesfellowshipaccepted_CivirulesConditions_Contact_FellowshipAcceptedChangedToYes",
+    "is_active": 1
+  }
+]
