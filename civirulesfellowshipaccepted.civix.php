@@ -13,12 +13,12 @@ function _civirulesfellowshipaccepted_civix_civicrm_config(&$config): void {
  * Civix helper: install.
  */
 function _civirulesfellowshipaccepted_civix_civicrm_install(): void {
-  _civirulesfellowshipaccepted_civix_civicrm_config();
+  // No install-time civix bootstrap required.
 }
 
 /**
  * Civix helper: enable.
  */
 function _civirulesfellowshipaccepted_civix_civicrm_enable(): void {
-  _civirulesfellowshipaccepted_civix_civicrm_config();
+  // No enable-time civix bootstrap required.
 }
