@@ -12,7 +12,7 @@
     <email>noreply@example.org</email>
   </maintainer>
   <releaseDate>2026-02-06</releaseDate>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <develStage>stable</develStage>
   <compatibility>
     <ver>6.7</ver>

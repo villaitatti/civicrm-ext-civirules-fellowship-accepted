@@ -1,0 +1,92 @@
+name: Auto Release On Version Bump
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - info.xml
+
+permissions:
+  contents: write
+
+jobs:
+  auto-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Resolve version metadata
+        id: meta
+        run: |
+          VERSION="$(php -r '$xml = simplexml_load_file("info.xml"); if (!$xml) { fwrite(STDERR, "Invalid info.xml\n"); exit(1);} echo trim((string) $xml->version);')"
+          if [[ -z "$VERSION" ]]; then
+            echo "Version in info.xml is empty." >&2
+            exit 1
+          fi
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
+            echo "info.xml version is not semver-compatible: $VERSION" >&2
+            exit 1
+          fi
+
+          TAG="v${VERSION}"
+          LAST_TAG="$(git tag --list 'v*' --sort=-v:refname | head -n1 || true)"
+
+          SHOULD_RELEASE="true"
+          REASON="version_changed"
+
+          if [[ -n "$LAST_TAG" && "$TAG" == "$LAST_TAG" ]]; then
+            SHOULD_RELEASE="false"
+            REASON="same_as_latest_tag"
+          elif git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag ${TAG} already exists but is not the latest tag. Refusing to create duplicate release." >&2
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "last_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
+          echo "should_release=$SHOULD_RELEASE" >> "$GITHUB_OUTPUT"
+          echo "reason=$REASON" >> "$GITHUB_OUTPUT"
+
+      - name: Explain skip
+        if: steps.meta.outputs.should_release != 'true'
+        run: |
+          echo "Skipping release: ${{ steps.meta.outputs.reason }} (current=${{ steps.meta.outputs.tag }}, latest=${{ steps.meta.outputs.last_tag }})."
+
+      - name: Lint PHP
+        if: steps.meta.outputs.should_release == 'true'
+        run: find . -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Build release package
+        if: steps.meta.outputs.should_release == 'true'
+        run: |
+          bash build/release-package.sh "${{ steps.meta.outputs.version }}"
+
+      - name: Upload package artifact
+        if: steps.meta.outputs.should_release == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-release-${{ steps.meta.outputs.tag }}
+          path: dist/*.zip
+
+      - name: Create GitHub Release
+        if: steps.meta.outputs.should_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true
+          prerelease: false
+          files: |
+            dist/*.zip

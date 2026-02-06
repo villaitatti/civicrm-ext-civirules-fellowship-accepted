@@ -8,14 +8,10 @@ declare(strict_types=1);
 class CRM_Civirulesfellowshipaccepted_Upgrader extends CRM_Extension_Upgrader_Base {
 
   public function install(): void {
-    parent::install();
-
     $this->registerCiviRulesCondition();
   }
 
   public function enable(): void {
-    parent::enable();
-
     // Re-register on enable in case CiviRules was installed/enabled later.
     $this->registerCiviRulesCondition();
   }
@@ -33,8 +29,13 @@ class CRM_Civirulesfellowshipaccepted_Upgrader extends CRM_Extension_Upgrader_Ba
       return;
     }
 
+    $extensionDir = $this->getExtensionDir();
+    if (!$extensionDir) {
+      return;
+    }
+
     CRM_Civirules_Utils_Upgrader::insertConditionsFromJson(
-      $this->extensionDir . DIRECTORY_SEPARATOR . 'civirules_conditions.json'
+      $extensionDir . DIRECTORY_SEPARATOR . 'civirules_conditions.json'
     );
   }
 

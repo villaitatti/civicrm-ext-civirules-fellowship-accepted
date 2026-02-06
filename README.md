@@ -92,19 +92,27 @@ civicrm_api4('Custom_Fellowships', 'get', [
 ## GitHub Automation
 
 - CI workflow: `.github/workflows/ci.yml`
+- Auto-release workflow: `.github/workflows/auto-release-on-version-bump.yml`
 - Release workflow: `.github/workflows/release.yml`
 
-Release behavior:
+Release behavior (recommended):
 
 1. Update version in `info.xml` and `CHANGELOG.md`.
-2. Create and push a matching git tag, for example:
+2. Commit and push to `main`.
+3. The auto-release workflow compares `info.xml` version to the latest `v*` tag.
+4. If the version is different, it creates a GitHub Release with tag `v<version>` and uploads the package zip.
+5. If the version is unchanged, it skips release.
+
+Manual release options (fallback):
+
+1. Create and push a matching git tag, for example:
 
 ```bash
 git tag v1.0.1
 git push origin v1.0.1
 ```
 
-3. GitHub Actions builds the zip and publishes it as a GitHub Release asset.
+2. GitHub Actions builds the zip and publishes it as a GitHub Release asset.
 
 Manual release from Actions UI:
 
