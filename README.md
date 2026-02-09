@@ -12,41 +12,6 @@ Condition label in UI:
 
 It passes only when the changed field is `115` and NEW value is truthy (`true`, `1`, `"1"`, `"true"`).
 
-## Files
-
-- Condition class: `CRM/Civirulesfellowshipaccepted/CivirulesConditions/Contact/FellowshipAcceptedChangedToYes.php`
-- CiviRules condition registration: `civirules_conditions.json`
-- Upgrader install/enable/upgrade registration: `CRM/Civirulesfellowshipaccepted/Upgrader.php`
-
-## Build / Install
-
-1. Put this extension directory in your CiviCRM extensions path.
-2. Enable the extension:
-
-```bash
-cv ext:enable org.civicrm.civirules.fellowshipaccepted
-```
-
-3. Clear caches:
-
-```bash
-cv flush
-```
-
-If `cv` is not available in your PATH, run with your local `cv` binary path.
-
-## Local Development Commands
-
-```bash
-make lint
-make package
-make clean
-```
-
-Package output:
-
-- `dist/org.civicrm.civirules.fellowshipaccepted-<version>.zip`
-
 ## Use In Rule
 
 1. Open your existing CiviRules rule with trigger:
@@ -75,19 +40,6 @@ civicrm_api4('Custom_Fellowships', 'get', [
   'checkPermissions' => TRUE,
 ]);
 ```
-
-## Troubleshooting
-
-- Condition not visible in CiviRules UI:
-  - Confirm extension is enabled: `cv ext:list | grep fellowshipaccepted`
-  - Re-enable extension, then `cv flush`
-- Condition visible but never matches:
-  - Confirm field id is exactly `115`
-  - Confirm trigger is `Custom Data on Contact (of any Type) Changed`
-  - Confirm rule still includes `Contact Custom Field Changed is one of`
-- Missing row id/new value in trigger payload:
-  - This extension already attempts payload parsing across multiple trigger-data containers and then APIv4 fallback.
-  - If payload omits both NEW value and row id, matching is not possible and condition safely returns `FALSE`.
 
 ## GitHub Automation
 
