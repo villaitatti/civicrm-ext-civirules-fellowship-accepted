@@ -73,7 +73,7 @@ jobs:
           echo "package=$PACKAGE_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Upload package artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: release-${{ steps.meta.outputs.tag }}
           path: dist/*.zip
